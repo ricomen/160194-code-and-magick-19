@@ -1,7 +1,7 @@
 # Учебный проект «Код и Магия» [![Build status][travis-image]][travis-url]
 
 * Студент: [Тимур Хамитов](https://up.htmlacademy.ru/javascript/19/user/160194).
-* Наставник: `Неизвестно`.
+* Наставник: [Павел Ерастов](https://htmlacademy.ru/profile/id1032917).
 
 ---
 
