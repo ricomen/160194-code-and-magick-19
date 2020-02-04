@@ -1,74 +1,107 @@
 'use strict';
+
 window.renderStatistics = function (ctx, names, times) {
-  var CLOUD_BEGIN_X = 100;
-  var CLOUD_BEGIN_Y = 10;
-  var CLOUD_WIDTH = 420;
-  var CLOUD_HEIGHT = 270;
-  var HISTOGRAM_HEIGHT = 150;
-  var HISTOGRAM_COLUMN_WIDTH = 40;
-  var HISTOGRAM_COLUMN_GAP = 50;
 
-  // CLOUD_SHADOW
-  ctx.fillStyle = 'rgba(0,0,0,.7)';
-  ctx.fillRect(CLOUD_BEGIN_X + 10, CLOUD_BEGIN_Y + 10, CLOUD_WIDTH, CLOUD_HEIGHT);
-
-  // CLOUD
-  ctx.strokeStyle = '#000';
-  ctx.strokeRect(CLOUD_BEGIN_X, CLOUD_BEGIN_Y, CLOUD_WIDTH, CLOUD_HEIGHT);
-  ctx.fillStyle = 'rgb(255,255,255)';
-  ctx.fillRect(CLOUD_BEGIN_X, CLOUD_BEGIN_Y, CLOUD_WIDTH, CLOUD_HEIGHT);
-
-  // CLOUD_TITLE
-  ctx.fillStyle = '#000';
-  ctx.font = '16px PT Mono';
-  ctx.fillText('Ура вы победили!', CLOUD_BEGIN_X + 20, CLOUD_BEGIN_Y + 40);
-  ctx.fillText('Список результатов: ', CLOUD_BEGIN_X + 20, CLOUD_BEGIN_Y + 60);
-
-  // HISTOGRAM_COLUMN
-  var makeColumn = function (column) {
-    var columnNameX = column.beginX;
-    var columnNameY = column.beginY + HISTOGRAM_HEIGHT + 20;
-    var columnTimeX = column.beginX;
-    var columnTimeY = column.beginY + HISTOGRAM_HEIGHT - column.height - 10;
-    var columnBeginX = column.beginX;
-    var columnBeginY = column.beginY + HISTOGRAM_HEIGHT - column.height;
-    var columnColor = column.name === 'Вы' ? 'rgba(255, 0, 0, 1)' : 'hsl(240, ' + Math.floor(Math.random() * 100) + '% , 50%)';
-
-    ctx.fillStyle = columnColor;
-    ctx.fillRect(columnBeginX, columnBeginY, HISTOGRAM_COLUMN_WIDTH, column.height);
-    ctx.fillStyle = '#000';
-    ctx.font = '16px PT Mono';
-    ctx.fillText(column.time, columnTimeX, columnTimeY);
-    ctx.fillText(column.name, columnNameX, columnNameY);
+  var TEXT = {
+    font: '16px PT Mono',
+    padding: 20
   };
 
-  // HISTOGRAM
-  var createHistogram = function () {
+  var COLOR = {
+    white: 'rgb(255,255,255)',
+    black: 'rgb(0,0,0)',
+    shadow: 'rgba(0,0,0,.7)',
+    red: 'rgba(255, 0, 0, 1)',
+    randomBlue: function () {
+      return 'hsl(240, ' + Math.floor(Math.random() * 100) + '% , 50%)';
+    }
+  };
 
-    var column = {
-      beginX: CLOUD_BEGIN_X + 40,
-      beginY: CLOUD_BEGIN_Y + 90,
-      height: '',
-      name: '',
-      time: '',
-    };
+  var CLOUD = {
+    beginX: 100,
+    beginY: 10,
+    width: 420,
+    height: 270,
+    shadowOffset: 10,
+    titleRowFirst: 'Ура вы победили!',
+    titleRowSecond: 'Список результатов',
+    innerPaddingX: 20,
+    innerPaddingY: 30,
+    render: function () {
 
-    var maxTime = 0;
+      ctx.fillStyle = COLOR.shadow;
+      ctx.fillRect(this.beginX + this.shadowOffset, this.beginY + this.shadowOffset, this.width, this.height);
 
-    for (var i = 0; i < times.length; i++) {
-      if (maxTime < times[i]) {
-        maxTime = times[i];
+      ctx.strokeStyle = COLOR.black;
+      ctx.strokeRect(this.beginX, this.beginY, this.width, this.height);
+
+      ctx.fillStyle = COLOR.white;
+      ctx.fillRect(this.beginX, this.beginY, this.width, this.height);
+
+      ctx.fillStyle = COLOR.black;
+      ctx.font = TEXT.font;
+      ctx.fillText(this.titleRowFirst, this.beginX + this.innerPaddingX, this.beginY + this.innerPaddingY);
+      ctx.fillText(this.titleRowSecond, this.beginX + this.innerPaddingX, this.beginY + this.innerPaddingY + TEXT.padding);
+
+    },
+  };
+
+
+  var HISTOGRAM = {
+    height: 150,
+    columnWidth: 40,
+    columnInterval: 50,
+    columnNumber: 0,
+    names: names,
+    times: times,
+    maxTime: function () {
+      var maxTime = 0;
+      for (var i = 0; i < this.times.length; i++) {
+        if (maxTime < times[i]) {
+          maxTime = times[i];
+        }
       }
-    }
+      return maxTime;
+    },
 
-    for (var j = 0; j < names.length; j++) {
-      column.name = names[j];
-      column.time = Math.round(times[j]);
-      column.height = (times[j] * HISTOGRAM_HEIGHT) / maxTime;
-      makeColumn(column);
-      column.beginX += HISTOGRAM_COLUMN_WIDTH + HISTOGRAM_COLUMN_GAP;
+    columnColor: function (name) {
+      if (name === 'Вы') {
+        return COLOR.red;
+      }
+      return COLOR.randomBlue();
+    },
+
+    drawColumn: function (name, time) {
+
+      time = Math.round(time);
+      var colTextPadding = 10;
+      var colHeight = time * this.height / this.maxTime();
+      var colBeginY = CLOUD.beginY + CLOUD.height - CLOUD.innerPaddingY - colHeight - colTextPadding;
+      var colBeginX = CLOUD.beginX + CLOUD.innerPaddingX + (this.columnWidth + this.columnInterval) * this.columnNumber;
+      var colTimeBeginY = colBeginY - colTextPadding;
+      var colNameBeginY = CLOUD.beginY + CLOUD.height - CLOUD.innerPaddingY + colTextPadding;
+      var colColor = this.columnColor(name);
+      var colTextColor = COLOR.black;
+
+      ctx.fillStyle = colColor;
+      ctx.fillRect(colBeginX, colBeginY, this.columnWidth, colHeight);
+
+      ctx.fillStyle = colTextColor;
+      ctx.fillText(time, colBeginX, colTimeBeginY);
+      ctx.fillText(name, colBeginX, colNameBeginY);
+
+      this.columnNumber++;
+
+    },
+    render: function () {
+
+      for (var i = 0; i < this.names.length; i++) {
+        this.drawColumn(names[i], times[i]);
+      }
+
     }
   };
 
-  createHistogram();
+  CLOUD.render();
+  HISTOGRAM.render();
 };
