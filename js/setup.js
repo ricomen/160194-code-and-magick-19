@@ -6,7 +6,7 @@ var setupSimilarList = setupSimilar.querySelector('.setup-similar-list');
 setup.classList.remove('hidden');
 setupSimilar.classList.remove('hidden');
 
-var firstName = [
+var firstNames = [
   'Иван',
   'Хуан Себастьян',
   'Мария',
@@ -17,7 +17,7 @@ var firstName = [
   'Вашингтон',
 ];
 
-var secondNamed = [
+var secondNames = [
   'да Марья',
   'Верон',
   'Мирабелла',
@@ -45,23 +45,22 @@ var eyesColors = [
   'green',
 ];
 
-var getRandomDataFromArr = function (arr) {
+var getRandomItemFromArray = function (arr) {
   var index = Math.floor(Math.random() * Math.floor(arr.length));
   return arr[index];
 };
 
-var wizards = new Array(4);
-var i = 0;
-
-for (i = 0; i < wizards.length; i++) {
-
-  var wizard = {
-    name: getRandomDataFromArr(firstName) + ' ' + getRandomDataFromArr(secondNamed),
-    coatColor: getRandomDataFromArr(coatColors),
-    eyesColor: getRandomDataFromArr(eyesColors),
+var getWizardData = function () {
+  return {
+    name: getRandomItemFromArray(firstNames) + ' ' + getRandomItemFromArray(secondNames),
+    coatColor: getRandomItemFromArray(coatColors),
+    eyesColor: getRandomItemFromArray(eyesColors),
   };
+};
 
-  wizards[i] = wizard;
+var wizards = new Array(4);
+for (var i = 0; i < wizards.length; i++) {
+  wizards.push(getWizardData());
 }
 
 var getWizardsContent = function () {
