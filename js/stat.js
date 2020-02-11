@@ -36,7 +36,8 @@ window.renderStatistics = function (ctx, names, times) {
   };
 
   var renderCloud = function (cloudProps, colors, textProps) {
-    var cloudTitle = ['Ура вы победили!', 'Список результатов'];
+    var winnerTitle = 'Ура вы победили!';
+    var resultSummaryTitle = 'Список результатов';
     var CLOUD_SHADOW_BEGIN_X = cloudProps.BEGIN_X + cloudProps.SHADOW_OFFSET;
     var CLOUD_SHADOW_BEGIN_Y = cloudProps.BEGIN_Y + cloudProps.SHADOW_OFFSET;
     var CLOUD_BEGIN_X = cloudProps.BEGIN_X;
@@ -53,6 +54,10 @@ window.renderStatistics = function (ctx, names, times) {
     var titleBeginX = CLOUD_BEGIN_X + CLOUD_INNER_PADDING_X;
     var titleBeginY = CLOUD_BEGIN_Y + CLOUD_INNER_PADDING_Y;
 
+    var drawTitle = function (text, posX, posY) {
+      ctx.fillText(text, posX, posY);
+    };
+
     ctx.fillStyle = COLOR_SHADOW;
     ctx.fillRect(CLOUD_SHADOW_BEGIN_X, CLOUD_SHADOW_BEGIN_Y, CLOUD_WIDTH, CLOUD_HEIGHT);
 
@@ -64,21 +69,15 @@ window.renderStatistics = function (ctx, names, times) {
 
     ctx.fillStyle = COLOR_BLACK;
     ctx.font = TEXT_STYLE;
-    for (var i = 0; i < cloudTitle.length; i++) {
-      if (i) {
-        titleBeginY += LINE_HEIGHT;
-      }
-      ctx.fillText(cloudTitle[i], titleBeginX, titleBeginY);
-    }
+    drawTitle(winnerTitle, titleBeginX, titleBeginY);
+    drawTitle(resultSummaryTitle, titleBeginX, titleBeginY + LINE_HEIGHT);
   };
-  var getMaxValue = function (arr) {
-    var max = arr[0];
-    for (var i = 0; i < arr.length; i++) {
-      if (max < arr[i]) {
-        max = arr[i];
-      }
-    }
-    return max;
+
+  var getFastestTime = function (times) {
+    var maxTime = times.reduce(function (maxValue, current) {
+      return maxValue < current ? current : maxValue;
+    });
+    return maxTime;
   };
 
   var renderHistogram = function (cloudProps, histogramProps, colors, textProps) {
@@ -88,7 +87,7 @@ window.renderStatistics = function (ctx, names, times) {
     var HISTOGRAM_HEIGHT = histogramProps.HEIGHT;
     var COLOR_BLACK = colors.BLACK;
     var TEXT_STYLE = textProps.FONT_SIZE + 'px ' + textProps.FONT_NANE;
-    var MAX_TIME = getMaxValue(times);
+    var MAX_TIME = getFastestTime(times);
     var getHistogramColumnColor = function (name) {
       if (name === 'Вы') {
         return colors.RED;
@@ -124,9 +123,10 @@ window.renderStatistics = function (ctx, names, times) {
       ctx.fillText(LABEL_NAME, LABEL_NAME_X, LABEL_NAME_Y);
     };
 
-    for (var i = 0; i < names.length; i++) {
-      drawColumn(names[i], times[i], i);
-    }
+    names.forEach(function (item, i) {
+      drawColumn(item, times[i], i);
+    });
+
   };
 
   renderCloud(CloudProps, Colors, TextProps);
