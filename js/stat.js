@@ -73,11 +73,10 @@ window.renderStatistics = function (ctx, names, times) {
     drawTitle(resultSummaryTitle, titleBeginX, titleBeginY + LINE_HEIGHT);
   };
 
-  var getFastestTime = function (times) {
-    var maxTime = times.reduce(function (maxValue, current) {
+  var getSlowestTime = function (playersTime) {
+    return playersTime.reduce(function (maxValue, current) {
       return maxValue < current ? current : maxValue;
-    });
-    return maxTime;
+    }, playersTime[0]);
   };
 
   var renderHistogram = function (cloudProps, histogramProps, colors, textProps) {
@@ -87,7 +86,7 @@ window.renderStatistics = function (ctx, names, times) {
     var HISTOGRAM_HEIGHT = histogramProps.HEIGHT;
     var COLOR_BLACK = colors.BLACK;
     var TEXT_STYLE = textProps.FONT_SIZE + 'px ' + textProps.FONT_NANE;
-    var MAX_TIME = getFastestTime(times);
+    var MAX_TIME = getSlowestTime(times);
     var getHistogramColumnColor = function (name) {
       if (name === 'Вы') {
         return colors.RED;
@@ -123,8 +122,8 @@ window.renderStatistics = function (ctx, names, times) {
       ctx.fillText(LABEL_NAME, LABEL_NAME_X, LABEL_NAME_Y);
     };
 
-    names.forEach(function (item, i) {
-      drawColumn(item, times[i], i);
+    names.forEach(function (name, i) {
+      drawColumn(name, times[i], i);
     });
 
   };

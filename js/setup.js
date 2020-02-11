@@ -45,6 +45,8 @@ var eyesColors = [
   'green',
 ];
 
+var WIZARDS_NUMBER = 4;
+
 var getRandomItemFromArray = function (arr) {
   var index = Math.floor(Math.random() * Math.floor(arr.length));
   return arr[index];
@@ -58,22 +60,21 @@ var getWizardData = function () {
   };
 };
 
-var wizards = new Array(4);
-for (var i = 0; i < wizards.length; i++) {
+var wizards = [];
+for (var i = 0; i < WIZARDS_NUMBER; i++) {
   wizards.push(getWizardData());
 }
 
 var getWizardsContent = function () {
   var fragment = new DocumentFragment();
-  for (i = 0; i < wizards.length; i++) {
+  for (var j = 0; j < wizards.length; j++) {
     var wizardItem = wizardTpl.cloneNode(true);
     var wizardItemName = wizardItem.querySelector('.setup-similar-label');
     var wizardItemCoatColor = wizardItem.querySelector('.wizard-coat');
     var wizardItemEyesColor = wizardItem.querySelector('.wizard-eyes');
-
-    wizardItemName.textContent = wizards[i].name;
-    wizardItemCoatColor.setAttribute('fill', wizards[i].coatColor);
-    wizardItemEyesColor.setAttribute('fill', wizards[i].eyesColor);
+    wizardItemName.textContent = wizards[j].name;
+    wizardItemCoatColor.setAttribute('fill', wizards[j].coatColor);
+    wizardItemEyesColor.setAttribute('fill', wizards[j].eyesColor);
     fragment.appendChild(wizardItem);
   }
   return fragment;
